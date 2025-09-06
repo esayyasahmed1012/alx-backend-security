@@ -17,7 +17,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-your-secret-key-here'  # Replace with a secure key
+SECRET_KEY = 'django-insecure-793054569d9749c88c9d2ee93f75141f'  # Replace with a secure key
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -112,7 +112,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # django-ipgeolocation settings
 IP_GEOLOCATION_SETTINGS = {
     'BACKEND': 'django_ip_geolocation.backends.IPGeolocationAPI',
-    'BACKEND_API_KEY': 'your_api_key_here',  # Replace with your API key
+    'BACKEND_API_KEY': '793054569d9749c88c9d2ee93f75141f',  
     'BACKEND_EXTRA_PARAMS': {},
     'ENABLE_REQUEST_HOOK': True,
     'ENABLE_RESPONSE_HOOK': False,
