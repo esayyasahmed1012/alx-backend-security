@@ -1,0 +1,45 @@
+from celery import shared_task
+from django.utils import timezone
+from datetime import timedelta
+from ip_tracking.models import RequestLog, SuspiciousIP
+
+@shared_task
+def detect_suspicious_ips():
+    """
+    Hourly task to flag IPs exceeding 100 requests/hour or accessing sensitive paths.
+    """
+    # Define sensitive paths
+    sensitive_paths = ['/admin', '/login', '/ip-tracking/login/']
+
+    # Calculate time window (last 1 hour)
+    one_hour_ago = timezone.now() - timedelta(hours=1)
+
+    # Group requests by IP in the last hour
+    ip_requests = RequestLog.objects.filter(
+        timestamp__gte=one_hour_ago
+    ).values('ip_address').annotate(
+        request_count=models.Count('id')
+    ).order_by('-request_count')
+
+    # Flag IPs exceeding 100 requests/hour
+    for ip_data in ip_requests:
+        ip_address = ip_data['ip_address']
+        request_count = ip_data['request_count']
+        if request_count > 100:
+            SuspiciousIP.objects.get_or_create(
+                ip_address=ip_address,
+                defaults={'reason': f"Exceeded 100 requests/hour: {request_count} requests"}
+            )
+
+    # Flag IPs accessing sensitive paths
+    sensitive_requests = RequestLog.objects.filter(
+        timestamp__gte=one_hour_ago,
+        path__in=sensitive_paths
+    ).values('ip_address').distinct()
+
+    for ip_data in sensitive_requests:
+        ip_address = ip_data['ip_address']
+        SuspiciousIP.objects.get_or_create(
+            ip_address=ip_address,
+            defaults={'reason': f"Accessed sensitive path(s): {', '.join(sensitive_paths)}"}
+        )
